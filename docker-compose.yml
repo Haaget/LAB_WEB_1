@@ -1,0 +1,48 @@
+services:
+  symfony:
+    image: php:7.4-apache
+    container_name: symfony
+    ports:
+      - "8001:80"
+    volumes:
+      - ./symfony:/var/www/html
+    networks:
+      - backend
+
+  express:
+    image: node:14
+    container_name: express
+    ports:
+      - "8002:3000"
+    volumes:
+      - ./express:/app
+    working_dir: /app
+    command: npm start
+    networks:
+      - backend
+
+  django:
+    image: python:3.8
+    container_name: django
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./django/django_app:/app
+    working_dir: /app
+    command: bash -c "pip install -r requirements.txt && python manage.py runserver 0.0.0.0:8000"
+    networks:
+      - backend
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
